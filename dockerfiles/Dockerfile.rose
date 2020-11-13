@@ -1,0 +1,29 @@
+FROM pangine/disasms-base
+
+# Install disassembler required packages
+USER root
+WORKDIR /root/
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    flex \
+    libboost-all-dev \
+    libpng-dev \
+    libxml2-dev \
+    pkg-config
+
+# Install rose
+RUN git clone --depth 1 -b v0.10.4.3 https://github.com/rose-compiler/rose rose && \
+    cd rose && \
+    cmake \
+        -Denable-binary-analysis=yes -Denable-c=no -Denable-opencl=no -Denable-java=no -Denable-php=no \
+        -Denable-fortran=no -Ddisable-tutorial-directory=yes -Denable-projects-directory=yes \
+        -Ddisable-tests-directory=yes \
+        -DCMAKE_BUILD_TYPE=RELWITHDEBINFO -B build-release . && \
+    cd build-release && \
+    make install
+
+USER ${USER}
+WORKDIR ${USER_HOME}
+
+# Install this package
+RUN go get -u github.com/pangine/disasm-eval-disasms/... && \
+    echo "[2020-11-12]"

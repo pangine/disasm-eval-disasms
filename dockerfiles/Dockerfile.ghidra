@@ -1,0 +1,20 @@
+FROM pangine/disasms-base
+
+# Install disassembler required packages
+USER root
+WORKDIR /root/
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    default-jdk \
+    unzip
+
+USER ${USER}
+WORKDIR ${USER_HOME}
+
+# Install Ghidra
+RUN wget --progress=bar:force:noscroll https://ghidra-sre.org/ghidra_9.1.2_PUBLIC_20200212.zip && \
+    unzip ghidra_9.1.2_PUBLIC_20200212.zip
+
+# Install this package
+RUN go get -u github.com/pangine/disasm-eval-disasms/... && \
+    echo "${USER_HOME}/ghidra_9.1.2_PUBLIC/support/analyzeHeadless" > ${USER_HOME}/go/src/github.com/pangine/pangineDSM-import/ghidraScript/headlessLoc.txt && \
+    echo "[2020-11-12]"

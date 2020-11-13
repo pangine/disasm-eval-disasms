@@ -1,0 +1,34 @@
+FROM pangine/disasms-base
+
+# Install disassembler required packages
+USER root
+WORKDIR /root/
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    ocaml \
+    opam \
+    binutils-multiarch \
+    clang \
+    debianutils \
+    libgmp-dev \
+    libncurses5-dev \
+    libzip-dev \
+    llvm-10-dev \
+    m4 \
+    perl \
+    pkg-config \
+    python2.7 \
+    zlib1g-dev
+
+USER ${USER}
+WORKDIR ${USER_HOME}
+
+# Install bap
+RUN opam init --comp=4.09.0 --disable-sandboxing --yes && \
+    eval `opam config env` && \
+    opam install -y depext && \
+    opam depext --install -y bap.2.1.0
+
+# Install this package
+RUN go get -u github.com/pangine/disasm-eval-disasms/... && \
+    echo "eval `opam config env`" >> ~/.bashrc && \
+    echo "[2020-11-12]"

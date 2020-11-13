@@ -1,0 +1,108 @@
+FROM pangine/disasms-base
+
+# Install disassembler required packages
+USER root
+WORKDIR /root/
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    autoconf \
+    automake \
+    bison \
+    clang \
+    doxygen \
+    flex \
+    g++ \
+    libncurses5-dev \
+    libtool \
+    libsqlite3-dev \
+    make \
+    mcpp \
+    python \
+    sqlite \
+    zlib1g-dev
+
+# Install protobuff
+RUN wget --progress=bar:force:noscroll https://github.com/protocolbuffers/protobuf/releases/download/v3.12.3/protobuf-cpp-3.12.3.tar.gz && \
+    tar zxf protobuf-cpp-3.12.3.tar.gz && \
+    cd protobuf-3.12.3 && \
+    ./configure && \
+    make -j $(nproc --ignore $nprocIgnore) check install && \
+    ldconfig && \
+    cd .. && \
+    rm -rf protobuf-*
+
+# Install boost
+RUN wget --progress=bar:force:noscroll https://dl.bintray.com/boostorg/release/1.73.0/source/boost_1_73_0.tar.gz && \
+    tar zxf boost_1_73_0.tar.gz && \
+    cd boost_1_73_0 && \
+    ./bootstrap.sh && \
+    ./b2 install && \
+    cd .. && \
+    rm -rf boost_* || echo ""
+
+# Install capstone
+RUN wget --progress=bar:force:noscroll https://github.com/aquynh/capstone/archive/4.0.2.tar.gz && \
+    tar zxf 4.0.2.tar.gz && \
+    cd capstone-4.0.2 && \
+    ./cmake.sh && \
+    ./make.sh install && \
+    cd .. && \
+    rm -rf capstone-* 4.0.2.tar.gz
+
+# Install souffle
+RUN wget --progress=bar:force:noscroll https://github.com/souffle-lang/souffle/archive/1.7.1.tar.gz && \
+    tar zxf 1.7.1.tar.gz && \
+    cd souffle-1.7.1 && \
+    sh ./bootstrap && \
+    ./configure --enable-64bit-domain && \
+    make -j $(nproc --ignore $nprocIgnore) install && \
+    cd .. && \
+    rm -rf 1.7.1.tar.gz souffle-*
+
+# Install libehp
+RUN git clone https://git.zephyr-software.com/opensrc/libehp.git && \
+    cd libehp && \
+    cmake -B build . && \
+    cd build && \
+    make install && \
+    cd ~
+
+# Install lief
+RUN wget --progress=bar:force:noscroll https://github.com/lief-project/LIEF/releases/download/0.10.1/LIEF-0.10.1-Linux.tar.gz && \
+    tar zxf LIEF-0.10.1-Linux.tar.gz && \
+    rm LIEF-0.10.1-Linux.tar.gz
+
+# Install gtirb
+RUN git clone https://github.com/GrammaTech/gtirb.git && \
+    cd gtirb && \
+    git checkout 40c9b835c2982d57f6c33f506fe87f660c7f93db && \
+    cmake -B build -DGTIRB_JAVA_API=OFF -DGTIRB_PY_API=OFF -DGTIRB_CL_API=OFF . && \
+    cd build && \
+    make install && \
+    ldconfig && \
+    cd ~
+
+# Install gtirb-print
+RUN git clone https://github.com/GrammaTech/gtirb-pprinter.git && \
+    cd gtirb-pprinter && \
+    git checkout a218cc7b673f370eb4dd6fa5cea3aa9c9abd921b && \
+    cmake -B build . && \
+    cd build && \
+    make install && \
+    ldconfig && \
+    cd ~
+
+# Install ddisasm
+RUN git clone https://github.com/GrammaTech/ddisasm.git && \
+    cd ddisasm && \
+    git checkout 4a8ae6a1f93a2fdcf8a96e8c20e4145853c2b44d && \
+    cmake -B build -DLIEF_ROOT=/root/LIEF-0.10.1-Linux . && \
+    cd build && \
+    make install && \
+    ldconfig
+
+USER ${USER}
+WORKDIR ${USER_HOME}
+
+# Install this package
+RUN go get -u github.com/pangine/disasm-eval-disasms/... && \
+    echo "[2020-11-12]"
