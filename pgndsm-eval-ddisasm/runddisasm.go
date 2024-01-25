@@ -11,7 +11,7 @@ import (
 )
 
 func ddisasmAnalysis(binFile, outFile string) bool {
-	ddisasm := exec.Command("ddisasm", binFile, "--debug", "--asm", outFile)
+	ddisasm := exec.Command("ddisasm", binFile, "--ignore-errors","--debug", "--asm", outFile)
 	ddisasm.Stderr = os.Stderr
 	ddisasm.Stdout = os.Stdout
 	err := ddisasm.Start()
