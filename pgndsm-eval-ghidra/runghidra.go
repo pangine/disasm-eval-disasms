@@ -20,7 +20,7 @@ func ghidraAnalysis(hlLoc, binFile, scriptDir, logFile string) bool {
 	s1 := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(s1)
 	headless := exec.Command(hlLoc,
-		scriptDir, "groundtruth"+strconv.Itoa(r1.Int()),
+		"/tmp", "groundtruth"+strconv.Itoa(r1.Int()),
 		"-import", binFile,
 		"-postScript", "OffsetOutput.java", logFile,
 		"-scriptPath", scriptDir,
@@ -70,7 +70,6 @@ func main() {
 	_ = os.Mkdir(ghiRoot, os.ModePerm)
 
 	pdir := ghidraimport.GoDir()
-	headless := ghidraimport.HeadlessLoc(filepath.Join(pdir, "ghidraScript", "headlessLoc.txt"))
 
 	var dirList []string
 	if singleDir != "" {
@@ -94,7 +93,7 @@ func main() {
 			fmt.Printf("%-15s:\n", file)
 			binFile := filepath.Join(binDir, file)
 			ghiLog := filepath.Join(ghiDir, file+"_capnp.out")
-			if !ghidraAnalysis(headless, binFile, filepath.Join(pdir, "ghidraScript"), ghiLog) {
+			if !ghidraAnalysis("analyzeHeadless", binFile, filepath.Join(pdir, "ghidraScript"), ghiLog) {
 				fmt.Println("failed")
 			} else {
 				fmt.Println("done")
