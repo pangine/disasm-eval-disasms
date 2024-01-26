@@ -86,14 +86,16 @@ func main() {
 		for _, file := range fileList {
 			fmt.Printf("%-15s: ", file)
 			binFile := filepath.Join(binDir, file)
-			inFile := filepath.Join(ddmDir, file+".lst")
-			if _, err := os.Stat(inFile); os.IsNotExist(err) {
+			gtirbFile := filepath.Join(ddmDir, file+".gtirb")
+			insnFile := filepath.Join(ddmDir, file+".lst")
+			if _, err := os.Stat(gtirbFile); os.IsNotExist(err) {
 				fmt.Println("original output does not exist")
 				continue
 			}
+			ddisasmcvt.RunDdisasmConverter(gtirbFile,insnFile)
 			outFile := filepath.Join(ddmDir, file+"_ddisasm.out")
 			bi := object.ParseObj(binFile)
-			que := ddisasmcvt.ReadDdisasm(inFile)
+			que := ddisasmcvt.ReadDdisasm(gtirbFile)
 			ety := object.InstLstFixForPrefix(que, bi)
 			bout, err := os.Create(outFile)
 			if err != nil {
