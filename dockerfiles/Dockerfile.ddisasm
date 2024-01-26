@@ -1,5 +1,5 @@
 FROM pangine/disasms-base
-ARG REPO="github.com/pangine/disasm-eval-disasms"
+
 # Install disassembler required packages
 USER root
 WORKDIR /root/
@@ -15,6 +15,6 @@ USER ${USER}
 WORKDIR ${USER_HOME}
 
 # Install this package
-RUN go get -u ${REPO}/... && \
-    go install ${REPO}/... && \
-    echo "[2020-11-12]"
+RUN go get -u github.com/pangine/disasm-eval-disasms/... && \
+    go install github.com/pangine/disasm-eval-disasms/... && \
+    echo "[2024-01-26]"
