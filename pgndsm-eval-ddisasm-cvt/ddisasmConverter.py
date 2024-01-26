@@ -15,10 +15,11 @@ def convert(gtirb_file, insn_file):
     insns.sort()
     with open(insn_file, "w") as f:
         for addr in insns:
-            print(addr, file=f)
+            print(hex(addr), file=f)
 
 
 if len(sys.argv) < 3:
+    print(f"expected two arguments, given {len(sys.argv)}")
     exit(1)
 
 convert(sys.argv[1], sys.argv[2])

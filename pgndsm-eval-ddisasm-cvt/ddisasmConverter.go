@@ -5,25 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
 )
 
-func RunDdisasmConverter(gtirbFile, insnFile string) bool {
-	ddisasm := exec.Command("ddisasmConverter.py", gtirbFile, outFile)
-	ddisasm.Stderr = os.Stderr
-	ddisasm.Stdout = os.Stdout
-	err := ddisasm.Start()
-	if err != nil {
-		fmt.Println("\tddisasm converter start failed")
-		return false
-	}
-	err = ddisasm.Wait()
-	if err != nil {
-		fmt.Println("\tddisasm converter execution failed")
-		return false
-	}
-	return true
-}
 
 // ReadDdisasm convert ddisasm output asm file into an int list contains insts offsets only
 func ReadDdisasm(file string) (offsets []int) {
@@ -37,8 +20,8 @@ func ReadDdisasm(file string) (offsets []int) {
 
 	lines := bufio.NewScanner(fin)
 	for lines.Scan() {
-		offset, err := strconv.ParseInt(lines.Text(), 16, 64)
-		offsets = append(offsets, offset)
+		offset, _ := strconv.ParseInt(lines.Text(), 0, 64)
+		offsets = append(offsets, int(offset))
 	}
 	return
 }

@@ -18,6 +18,23 @@ import (
 	objectapi "github.com/pangine/pangineDSM-utils/objectAPI"
 )
 
+func runDdisasmConverter(gtirbFile, insnFile string) bool {
+	ddisasm := exec.Command("ddisasmConverter.py", gtirbFile, insnFile)
+	ddisasm.Stderr = os.Stderr
+	ddisasm.Stdout = os.Stdout
+	err := ddisasm.Start()
+	if err != nil {
+		fmt.Println("\tddisasm converter start failed")
+		return false
+	}
+	err = ddisasm.Wait()
+	if err != nil {
+		fmt.Println("\tddisasm converter execution failed")
+		return false
+	}
+	return true
+}
+
 func main() {
 	argNum := len(os.Args)
 	inputDir := os.Args[argNum-1]
@@ -92,10 +109,10 @@ func main() {
 				fmt.Println("original output does not exist")
 				continue
 			}
-			ddisasmcvt.RunDdisasmConverter(gtirbFile,insnFile)
+			runDdisasmConverter(gtirbFile,insnFile)
 			outFile := filepath.Join(ddmDir, file+"_ddisasm.out")
 			bi := object.ParseObj(binFile)
-			que := ddisasmcvt.ReadDdisasm(gtirbFile)
+			que := ddisasmcvt.ReadDdisasm(insnFile)
 			ety := object.InstLstFixForPrefix(que, bi)
 			bout, err := os.Create(outFile)
 			if err != nil {
