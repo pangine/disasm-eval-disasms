@@ -5,7 +5,11 @@ import gtirb
 from gtirb_capstone.instructions import GtirbInstructionDecoder
 
 
-def convert(gtirb_file, insn_file):
+def extract_instruction_offsets(gtirb_file:str, insn_file:str):
+    """
+    Given a `gtirb_file`, extract all the instruction offsets
+    and print them in a text file `insn_file`.
+    """
     ir = gtirb.IR.load_protobuf(gtirb_file)
     module = ir.modules[0]
     decoder = GtirbInstructionDecoder(module.isa)
@@ -22,4 +26,4 @@ if len(sys.argv) < 3:
     print(f"expected two arguments, given {len(sys.argv)}")
     exit(1)
 
-convert(sys.argv[1], sys.argv[2])
+extract_instruction_offsets(sys.argv[1], sys.argv[2])
