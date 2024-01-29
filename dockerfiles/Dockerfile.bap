@@ -10,6 +10,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     clang \
     debianutils \
     libgmp-dev \
+    libtinfo5 \
     libncurses5-dev \
     libzip-dev \
     llvm-10-dev \
@@ -19,16 +20,17 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     python2.7 \
     zlib1g-dev
 
+# Install bap
+RUN wget https://github.com/BinaryAnalysisPlatform/bap/releases/download/v2.5.0/bap_2.5.0.deb && \
+    dpkg -i bap_2.5.0.deb && \
+    rm bap_2.5.0.deb
+
 USER ${USER}
 WORKDIR ${USER_HOME}
 
-# Install bap
-RUN opam init --comp=4.09.0 --disable-sandboxing --yes && \
-    eval `opam config env` && \
-    opam install -y depext && \
-    opam depext --install -y bap.2.1.0
+
 
 # Install this package
 RUN go get -u github.com/pangine/disasm-eval-disasms/... && \
-    echo "eval `opam config env`" >> ~/.bashrc && \
+    go install github.com/pangine/disasm-eval-disasms/... && \
     echo "[2020-11-12]"
