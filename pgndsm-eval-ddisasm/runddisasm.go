@@ -11,7 +11,7 @@ import (
 )
 
 func ddisasmAnalysis(binFile, outFile string) bool {
-	ddisasm := exec.Command("ddisasm", binFile, "--debug", "--asm", outFile)
+	ddisasm := exec.Command("ddisasm", binFile, "--ignore-errors", "--ir", outFile)
 	ddisasm.Stderr = os.Stderr
 	ddisasm.Stdout = os.Stdout
 	err := ddisasm.Start()
@@ -63,7 +63,7 @@ func main() {
 		for _, file := range fileList {
 			fmt.Printf("%-15s:\n", file)
 			binFile := filepath.Join(binDir, file)
-			inFile := filepath.Join(ddmDir, file+".lst")
+			inFile := filepath.Join(ddmDir, file+".gtirb")
 			if !ddisasmAnalysis(binFile, inFile) {
 				fmt.Println("failed")
 			} else {

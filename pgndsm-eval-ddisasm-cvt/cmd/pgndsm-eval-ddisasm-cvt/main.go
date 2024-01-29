@@ -18,6 +18,23 @@ import (
 	objectapi "github.com/pangine/pangineDSM-utils/objectAPI"
 )
 
+func runDdisasmConverter(gtirbFile, insnFile string) bool {
+	ddisasm := exec.Command("ddisasmConverter.py", gtirbFile, insnFile)
+	ddisasm.Stderr = os.Stderr
+	ddisasm.Stdout = os.Stdout
+	err := ddisasm.Start()
+	if err != nil {
+		fmt.Println("\tddisasm converter start failed")
+		return false
+	}
+	err = ddisasm.Wait()
+	if err != nil {
+		fmt.Println("\tddisasm converter execution failed")
+		return false
+	}
+	return true
+}
+
 func main() {
 	argNum := len(os.Args)
 	inputDir := os.Args[argNum-1]
@@ -86,14 +103,16 @@ func main() {
 		for _, file := range fileList {
 			fmt.Printf("%-15s: ", file)
 			binFile := filepath.Join(binDir, file)
-			inFile := filepath.Join(ddmDir, file+".lst")
-			if _, err := os.Stat(inFile); os.IsNotExist(err) {
+			gtirbFile := filepath.Join(ddmDir, file+".gtirb")
+			insnFile := filepath.Join(ddmDir, file+".lst")
+			if _, err := os.Stat(gtirbFile); os.IsNotExist(err) {
 				fmt.Println("original output does not exist")
 				continue
 			}
+			runDdisasmConverter(gtirbFile,insnFile)
 			outFile := filepath.Join(ddmDir, file+"_ddisasm.out")
 			bi := object.ParseObj(binFile)
-			que := ddisasmcvt.ReadDdisasm(inFile)
+			que := ddisasmcvt.ReadDdisasm(insnFile)
 			ety := object.InstLstFixForPrefix(que, bi)
 			bout, err := os.Create(outFile)
 			if err != nil {
